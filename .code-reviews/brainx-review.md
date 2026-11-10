@@ -1,12 +1,10 @@
 ---
-diff_hash: fbacba8f8a99d02907c072b523516dd3bbb394fc6c8727653d4329bb55734549
-reviewed_at: 2026-11-10T12:30:00Z
+diff_hash: 8226eb96e1d758e7fab1f84fba592fbf16d2a8e19bb7ec2536cd6021ec2264ad
+reviewed_at: 2026-11-10T07:40:00Z
 
 ## Summary
 
-Initial commit of a machine-learning fine-tuning exploration project. Changes include a Python `.gitignore`, a comprehensive 324-line `TRAINING-PLAN.md` learning roadmap covering 10 phases (foundations through demo), and 10 empty `.gitkeep` files establishing the `docs/` directory structure.
-
-No code stack was detected — this is a documentation-only repository at this stage. Generic review criteria applied (correctness, security, consistency, maintainability).
+Cleanup commit following the fully-resolved initial review (score 100). Removes the previous cycle's `.code-reviews/brainx-review.md` (archived in `.code-reviews/records/` by the post-commit hook) and deletes the 10 empty `.gitkeep` placeholder files that held the `docs/phase-*/` directory scaffold. No production code changed. No stack detected — documentation-only repository at this stage; generic review criteria applied.
 
 ## Findings
 
@@ -18,36 +16,27 @@ No code stack was detected — this is a documentation-only repository at this s
 
 *None.*
 
-### Medium (1)
+### Medium (0)
 
-- **`.gitignore`:1** — Missing `.ipynb_checkpoints/` entry. Fine-tuning exploration projects almost universally use Jupyter notebooks; without this entry, Jupyter's auto-generated checkpoint directories will be committed accidentally, potentially including large model outputs or intermediate data. *(correctness / maintainability)*
-  - status: open
-  - dev_reasoning: N/A
-  - ai_reasoning: The `.gitignore` covers Python bytecode and virtualenvs but omits `.ipynb_checkpoints/`, which Jupyter creates in every directory where a notebook is opened. For an ML exploration project this is a near-certain pollutant. Add `.ipynb_checkpoints/` to `.gitignore`.
+*None.*
 
-### Low (2)
+### Low (1)
 
-- **`.gitignore`:1** — Missing `.env` entry. ML projects commonly store API tokens (Hugging Face, Weights & Biases, OpenAI) in `.env` files; without this exclusion there is a risk of accidentally committing credentials if a `.env` file is created later. *(security / correctness)*
-  - status: open
-  - dev_reasoning: N/A
-  - ai_reasoning: Add `.env` and optionally `*.env` to `.gitignore` to prevent accidental credential commits. This is a low-effort safeguard for a risk that is real but not imminent (no `.env` exists yet).
-
-- **`TRAINING-PLAN.md`:38** — The plan repeatedly references "Step 1 of brief", "Step 2 of brief", etc. (phases 1, 4, 7, 8) but the brief document itself is not tracked anywhere in this repository. If the brief lives outside the repo (e.g. in a separate PDF or Notion page), future collaborators cannot resolve what "Step 3 of brief" means without out-of-band context. *(maintainability)*
-  - status: open
-  - dev_reasoning: N/A
-  - ai_reasoning: Either commit the brief alongside the plan, add a link/path to where it lives, or replace "Step N of brief" references with self-contained descriptions of what each phase must produce. The current wording creates a dangling external dependency.
+- **`docs/phase-*/`** — Deleting all 10 `.gitkeep` files removes the phase-based `docs/` subdirectory structure from git tracking entirely. On a fresh clone the `docs/` tree will not exist; collaborators won't see the scaffold that `TRAINING-PLAN.md` describes until actual content is committed into those folders. *(maintainability)*
+  - status: skipped
+  - dev_reasoning: Intentional redesign. We are dropping the per-phase subfolder structure entirely in favour of a flat docs/ folder with one .md file per phase, created when that phase starts. The subfolders and .gitkeep files are unnecessary overhead for a single-person learning project. TRAINING-PLAN.md will be updated to reflect this.
+  - ai_reasoning: Git does not track empty directories. With the gitkeeps gone, `docs/phase-0-foundations/` through `docs/phase-9-demo/` will not appear on a fresh clone. This is low-risk — the directories will naturally re-appear as research notes are added — but it may confuse a collaborator who clones expecting the structure described in the plan. Consider keeping one `.gitkeep` per phase-folder until real content is committed there, or add a note in the README/TRAINING-PLAN.md that the folders are created on first use.
 
 ## Reviewed files
 
-- `.gitignore` — reviewed
-- `TRAINING-PLAN.md` — reviewed
-- `docs/phase-0-foundations/.gitkeep` — skipped (empty placeholder)
-- `docs/phase-1-approaches/.gitkeep` — skipped (empty placeholder)
-- `docs/phase-2-hardware/.gitkeep` — skipped (empty placeholder)
-- `docs/phase-3-frameworks/.gitkeep` — skipped (empty placeholder)
-- `docs/phase-4-model-dataset/.gitkeep` — skipped (empty placeholder)
-- `docs/phase-5-data-prep/.gitkeep` — skipped (empty placeholder)
-- `docs/phase-6-review/.gitkeep` — skipped (empty placeholder)
-- `docs/phase-7-training/.gitkeep` — skipped (empty placeholder)
-- `docs/phase-8-evaluation/.gitkeep` — skipped (empty placeholder)
-- `docs/phase-9-demo/.gitkeep` — skipped (empty placeholder)
+- `.code-reviews/brainx-review.md` — deleted (previous review cycle file, archived in records/)
+- `docs/phase-0-foundations/.gitkeep` — deleted (empty placeholder)
+- `docs/phase-1-approaches/.gitkeep` — deleted (empty placeholder)
+- `docs/phase-2-hardware/.gitkeep` — deleted (empty placeholder)
+- `docs/phase-3-frameworks/.gitkeep` — deleted (empty placeholder)
+- `docs/phase-4-model-dataset/.gitkeep` — deleted (empty placeholder)
+- `docs/phase-5-data-prep/.gitkeep` — deleted (empty placeholder)
+- `docs/phase-6-review/.gitkeep` — deleted (empty placeholder)
+- `docs/phase-7-training/.gitkeep` — deleted (empty placeholder)
+- `docs/phase-8-evaluation/.gitkeep` — deleted (empty placeholder)
+- `docs/phase-9-demo/.gitkeep` — deleted (empty placeholder)
