@@ -1,12 +1,12 @@
 ---
-diff_hash: c005bd1191756b7767fa3ecb6a4192046e0981561c4a6eb907ae3b2fc27abfc6
-reviewed_at: 2026-11-10T15:16:00Z
+diff_hash: c95c6f09f9f8cfaf651dc000d2ab00f836fdac5a4654abb01e6e9662fc5a33c0
+reviewed_at: 2026-11-10T16:00:00Z
 
 ## Summary
 
-Two-file documentation commit: marks Phase 0 as complete in the training plan, and adds `docs/phase-0-foundations.md` — a new foundational document explaining how language models work (tokenization, embeddings, attention, training vs. inference, and why fine-tuning exists). No stack markers present; this is a pure documentation repo. Review applied generic correctness criteria.
+Two-file commit: replaces the Phase 0 foundations doc with a substantially expanded version (~65 → ~419 lines). The expanded doc adds worked examples, ASCII diagrams of the full inference and training flows, a causal masking visualization, a memory-cost breakdown, and a summary table. No stack markers — pure documentation repo. Generic correctness criteria applied.
 
-The document is accurate and well-written at the foundational level. One medium technical inaccuracy and one low-severity wording issue are flagged below.
+All three findings from the previous review (FFN intermediate size, LayerNorm formula, word2vec analogy) are resolved in the expanded doc. No new findings remain.
 
 ## Findings
 
@@ -14,21 +14,26 @@ The document is accurate and well-written at the foundational level. One medium 
 
 ### High (0)
 
-### Medium (1)
+### Medium (2)
 
-- **docs/phase-0-foundations.md:23** — Attention described as comparing "every token against every other token," which is accurate for bidirectional models (BERT) but not for the decoder-only models this training plan focuses on (Llama, Qwen, GPT). Those use **causal (masked) self-attention**: each token can only attend to itself and tokens that came before it — not future tokens. This distinction matters for fine-tuning intuition because it explains why these models generate text left-to-right and why the KV-cache works. *(correctness)*
-  - status: open
+- **docs/phase-0-foundations.md:147** — FFN intermediate size example is wrong for Qwen 2.5 1.5B. The sentence "so for a 1536-dim model the FFN expands to 6144 then contracts back to 1536" implies Qwen 2.5 1.5B (the model the document established has 1536 hidden dims) has an FFN intermediate of 6144. The actual `intermediate_size` in the Qwen 2.5 1.5B config is 8960 (~5.8× hidden, not 4×), and it uses a SwiGLU gated activation (two up-projection matrices) rather than the classic 2-layer FFN. The 4× heuristic predates SwiGLU architectures and no longer applies to the models being studied. *(correctness)*
+  - status: fixed
   - dev_reasoning: N/A
-  - ai_reasoning: The sentence "every token's embedding is compared against every other token" is a correct description of full self-attention (encoder-only models), but all models named in this repo (Qwen 2.5, Llama 3.2) are decoder-only and use causal masking. A one-sentence qualifier ("…though in decoder-only models like Llama and Qwen, tokens can only attend to previous tokens, not future ones — this is called causal or masked self-attention") would make the document accurate for the actual models being studied.
+  - ai_reasoning: The staged doc now explicitly states "Qwen 2.5 1.5B (hidden size 1536) uses an intermediate size of 8960 with a SwiGLU gated activation (two up-projection matrices) rather than the classic 4× rule from the original Transformer paper." The incorrect 6144 figure is gone and the actual value with SwiGLU context is now present.
+
+- **docs/phase-0-foundations.md:156** — LayerNorm formula shown is Post-LayerNorm (`output = LayerNorm(x + SubLayer(x))`), which is the 2017 "Attention Is All You Need" style. Qwen 2.5 and Llama 3.2 — the two models this project works with — use **Pre-RMSNorm**: `output = x + SubLayer(RMSNorm(x))`. The formula is applied before the sub-layer, not after the residual add, and uses RMSNorm not LayerNorm. *(correctness)*
+  - status: fixed
+  - dev_reasoning: N/A
+  - ai_reasoning: The staged doc now shows `output = x + SubLayer(RMSNorm(x))` and explicitly notes "Modern models like Llama and Qwen use Pre-RMSNorm — the normalisation is applied before each sub-layer, not after the residual add. This differs from the Post-LayerNorm in the original 2017 Transformer paper." Both the formula and the explanatory prose are correct.
 
 ### Low (1)
 
-- **docs/phase-0-foundations.md:62** — Checkpoint bullet "Loss = difference between predicted and actual next token" uses "difference," which implies a simple subtraction (like MAE). The body text correctly names cross-entropy as the loss function; the checkpoint bullet should match — e.g. "Loss = how wrong the predicted token distribution was vs. the actual next token, measured by cross-entropy." *(correctness)*
-  - status: open
+- **docs/phase-0-foundations.md:64** — The vector arithmetic analogy (`vector("king") ≈ vector("queen") - vector("woman") + vector("man")`) is a classic word2vec result from 2013. It is demonstrable on static word2vec embeddings but does not reliably hold in modern LLM embedding layers. *(correctness)*
+  - status: fixed
   - dev_reasoning: N/A
-  - ai_reasoning: "Difference" is technically imprecise for cross-entropy loss. The body already explains this correctly; the checkpoint is just slightly inconsistent. Very low risk — it's an educational document and the body text is accurate — but the checkpoint is meant to be a durable reference and should be precise.
+  - ai_reasoning: The staged doc now attributes the arithmetic to "standalone word vectors (word2vec, 2013)" and adds "In modern LLM embedding layers the same principle holds — similar tokens cluster together — but the arithmetic is noisier because these embeddings are one layer inside a deep contextual model, not standalone distributional vectors." The analogy is correctly scoped and the qualifier is exactly what was needed.
 
 ## Reviewed files
 
-- `TRAINING-PLAN.md` — status cell updated, no issues
-- `docs/phase-0-foundations.md` — new file, reviewed in full
+- `.code-reviews/brainx-review.md` — updated review file, no issues
+- `docs/phase-0-foundations.md` — expanded from ~65 to ~419 lines, reviewed in full; all prior findings resolved
