@@ -1,12 +1,11 @@
-# Learning Notes: LLM Fine-Tuning
+# Phase 1 — Fine-Tuning Fundamentals
 
-Consolidated reference for all studied concepts. Organized to match the ROADMAP.md phase structure. Notes are written after discussion — not from memory or assumption.
+**Status:** UNDERSTOOD  
+**Goal:** Deep understanding of what an LLM is, how it processes input, how it learns, and what fine-tuning actually changes inside the model.
 
 ---
 
-## Part 1 — Fine-Tuning Fundamentals
-
-### 1.1 The One Thing a Language Model Does
+## 1.1 The One Thing a Language Model Does
 
 A language model has exactly one job:
 
@@ -16,7 +15,7 @@ That is it. Everything else — answering questions, writing code, summarizing d
 
 ---
 
-### 1.2 Tokens and Tokenization
+## 1.2 Tokens and Tokenization
 
 Before the model sees any text, the text has to be converted into numbers. The model cannot read strings — it only works with numbers.
 
@@ -44,7 +43,7 @@ Key points:
 
 ---
 
-### 1.3 Embeddings — From Token IDs to Vectors
+## 1.3 Embeddings — From Token IDs to Vectors
 
 Token IDs are integers. The model cannot do useful math on integers directly. Each token ID gets converted into a **dense vector** — a list of floating point numbers.
 
@@ -72,11 +71,11 @@ Larger dimension = more capacity to represent meaning, but more memory and compu
 
 ---
 
-### 1.4 Through the Transformer — Layer by Layer
+## 1.4 Through the Transformer — Layer by Layer
 
 Tokens pass through a stack of **transformer layers**. A 1.5B model might have 28 layers. Each layer does two things: **self-attention** and a **feed-forward network**.
 
-#### Self-Attention — How Tokens Talk to Each Other
+### Self-Attention — How Tokens Talk to Each Other
 
 This is the most important mechanism in modern LLMs. It is how the model figures out which tokens are relevant to each other.
 
@@ -104,7 +103,7 @@ Step 5: Output = Weights · V      (weighted sum of value vectors)
 
 The output for each token is a mix of all previous tokens' information, weighted by how relevant they are.
 
-#### Causal Masking — Why Decoder Models Only Look Backwards
+### Causal Masking — Why Decoder Models Only Look Backwards
 
 The models we work with (Qwen, Llama, GPT) are **decoder-only** models. They generate text left to right. When processing token 5, they must not be allowed to see token 6, 7, 8 — that would be cheating.
 
@@ -121,13 +120,13 @@ Token  1  2  3  4  5
   5  [ ✓  ✓  ✓  ✓  ✓ ]    Last token sees everything
 ```
 
-#### Multi-Head Attention
+### Multi-Head Attention
 
 Attention is done in parallel with many different Q, K, V projections. Each is called a "head". A model might have 16 or 32 heads running in parallel.
 
 Each head can learn different relationships — one for syntax, another for coreference, another for positional proximity. Their outputs are concatenated and projected back down.
 
-#### Feed-Forward Network
+### Feed-Forward Network
 
 After attention, each token's vector passes through a small two-layer neural network independently. This is where the model stores factual associations — the "knowledge" is mostly in these layers.
 
@@ -137,7 +136,7 @@ FFN(x) = activation( x · W₁ + b₁ ) · W₂ + b₂
 
 The intermediate layer is typically larger than the hidden size. Qwen 2.5 1.5B (hidden size 1536) uses an intermediate size of 8960 with a SwiGLU gated activation.
 
-#### Residual Connections and Layer Norm
+### Residual Connections and Layer Norm
 
 Each sub-layer (attention and FFN) has a **residual connection** — the input is added back to the output. This keeps gradients flowing and prevents the signal from collapsing.
 
@@ -149,7 +148,7 @@ output = x + SubLayer(RMSNorm(x))
 
 ---
 
-### 1.5 The Full Inference Flow
+## 1.5 The Full Inference Flow
 
 ```
 Input text: "The capital of France is"
@@ -199,11 +198,11 @@ During all of this, no weights change. The model is frozen. This is **inference*
 
 ---
 
-### 1.6 Training — Where Learning Happens
+## 1.6 Training — Where Learning Happens
 
 Training runs the same forward pass, then adds three extra steps.
 
-#### What Training Data Looks Like
+### What Training Data Looks Like
 
 A training example is text. The model is shown:
 
@@ -224,11 +223,11 @@ Input:  "The capital of France is"→ Predict: "Paris"
 
 One sequence of N tokens gives N-1 training examples. This is extremely data-efficient.
 
-#### Step 1 — Forward Pass
+### Step 1 — Forward Pass
 
 Same as inference: run input through the model, get a probability distribution.
 
-#### Step 2 — Calculate Loss (Cross-Entropy)
+### Step 2 — Calculate Loss (Cross-Entropy)
 
 Compare what the model predicted against what actually came next.
 
@@ -244,7 +243,7 @@ Loss = -log( P(correct token) )
 
 The negative log means: if the model gives the right token probability 1.0, loss = 0. If it gives it probability near 0, loss → infinity. Total loss for a batch is the average across all positions.
 
-#### Step 3 — Backpropagation
+### Step 3 — Backpropagation
 
 We know the loss — a single number saying how wrong the model was. But we need to know *which weights* caused the error and *which direction* to move them.
 
@@ -254,7 +253,7 @@ Backpropagation calculates a **gradient** for every single weight:
 
 It does this by working backwards through the network using the chain rule from calculus. PyTorch handles this automatically.
 
-#### Step 4 — Gradient Descent
+### Step 4 — Gradient Descent
 
 Once we have the gradient for every weight, update each weight:
 
@@ -271,7 +270,7 @@ The **learning rate** controls the size of each step. Too large → weights over
 
 ---
 
-### 1.7 Training vs Inference — Side by Side
+## 1.7 Training vs Inference — Side by Side
 
 | | Inference | Training |
 |---|---|---|
@@ -285,7 +284,7 @@ The **learning rate** controls the size of each step. Too large → weights over
 
 ---
 
-### 1.8 What Fine-Tuning Is and What It Changes
+## 1.8 What Fine-Tuning Is and What It Changes
 
 Pretraining trains the model on trillions of tokens for months. Fine-tuning continues training on a small, specific dataset — thousands to millions of examples — for hours.
 
@@ -316,9 +315,7 @@ Pretraining trains the model on trillions of tokens for months. Fine-tuning cont
 
 ---
 
-### 1.9 Prompting vs RAG vs Fine-Tuning vs Tools
-
-A framework for choosing the right approach:
+## 1.9 Prompting vs RAG vs Fine-Tuning vs Tools
 
 | Approach | Use when |
 |---|---|
@@ -341,7 +338,7 @@ A framework for choosing the right approach:
 
 ---
 
-### 1.10 Memory Cost of Training — Full Fine-Tuning
+## 1.10 Memory Cost of Training — Full Fine-Tuning
 
 For full fine-tuning with Adam optimizer in mixed precision:
 
@@ -369,7 +366,7 @@ Full fine-tuning of 1.5B model = impossible on this machine. This is exactly why
 
 ---
 
-### 1.11 Overfitting
+## 1.11 Overfitting
 
 Overfitting happens when the model learns the training data too well — it memorizes specific examples rather than learning generalizable patterns.
 
@@ -387,248 +384,3 @@ Overfitting happens when the model learns the training data too well — it memo
 - Fewer epochs
 
 **Key distinction:** training loss and validation loss should both go down during healthy training. When they diverge, that is an overfitting signal.
-
----
-
-## Part 2 — LoRA
-
-### 2.1 The Core Insight
-
-LoRA (Low-Rank Adaptation) keeps every original weight in the model completely frozen and adds small trainable adapter matrices alongside selected layers. No original weight is ever touched. Only the adapters train.
-
-**The key observation:** when you fine-tune a large model, the weight changes (deltas — how much each weight moves) have **very low rank**. Even though there are millions of weights, the information needed to adapt the model to a new task lives in a much smaller dimensional subspace.
-
-LoRA exploits this by representing the weight update as a product of two small matrices instead of updating the full matrix directly.
-
----
-
-### 2.2 How LoRA Works — The Math
-
-Take any weight matrix W in the model — say the Query projection, size 1536 × 1536.
-
-**Full fine-tuning would do:**
-```
-W_new = W_original + ΔW       (update the matrix directly — expensive)
-```
-
-**LoRA does:**
-```
-Keep W_original completely frozen — never updated, ever.
-
-Add two new small matrices:
-    A: shape (rank × input_dim)    — thin and wide, randomly initialized
-    B: shape (output_dim × rank)   — tall and thin, initialized to ZERO
-
-Effective computation:
-    output = W · input  +  (α/r) · B · A · input
-             ───────────   ──────────────────────
-             frozen base       trainable adapter
-```
-
-**Why B starts at zero:** at step one, B·A = 0, so the adapter contributes nothing. The model starts behaving exactly like the base model. Training gradually moves B and A away from zero toward what reduces the loss. This means fine-tuning always starts from a stable baseline.
-
----
-
-### 2.3 The Mathematical Trick — Why Two Matrices
-
-The weight update ΔW for a 1536×1536 matrix = 2,359,296 numbers.
-
-LoRA decomposes it as B × A:
-```
-B (1536 × rank) × A (rank × 1536) = ΔW (1536 × 1536)
-
-At rank 16:
-  B: 1536 × 16 =  24,576 numbers
-  A: 16 × 1536 =  24,576 numbers
-  Total:          49,152 numbers   ←  2% of the original 2.3M
-```
-
-This works because fine-tuning weight changes are genuinely low rank — the decomposition captures most of what matters.
-
----
-
-### 2.4 Rank — What It Controls
-
-Rank is the size of the bottleneck dimension — the "bandwidth" of change allowed:
-
-| Rank | Parameters (1536×1536 layer) | Use case |
-|---|---|---|
-| 4 | ~12K | Very fast, simple tasks, may underfit |
-| 8 | ~25K | Simple tasks, common default |
-| 16 | ~50K | Most common starting point, good balance |
-| 32 | ~100K | Complex tasks needing more capacity |
-| 64 | ~200K | High capacity, approaches full fine-tuning |
-
-Higher rank = more expressive = more parameters = more memory = slower training.
-
-**Start at rank 16** for most tasks. Go lower if the task is simple or memory is tight. Go higher if rank 16 underfits (validation loss does not come down).
-
----
-
-### 2.5 Alpha — What It Controls
-
-Alpha (α) scales the adapter output. The effective scale is **α/r** (alpha divided by rank).
-
-```
-output = W · input  +  (α/r) · B · A · input
-```
-
-Dividing by r keeps the scale stable as rank changes. The common convention:
-
-```
-alpha = 2 × rank
-
-rank=8,  alpha=16  →  scale = 2.0
-rank=16, alpha=32  →  scale = 2.0
-rank=32, alpha=64  →  scale = 2.0
-```
-
-This means the effective adapter contribution is consistent regardless of which rank you chose. You can then tune rank independently of the scaling.
-
-**Practical implication:** if you are not sure, set `alpha = 2 * rank` and leave it alone while you experiment with rank.
-
----
-
-### 2.6 Target Modules — Which Layers Get Adapters
-
-Most commonly the attention projections in every transformer layer:
-- `q_proj` (query)
-- `k_proj` (key)
-- `v_proj` (value)
-- `o_proj` (output)
-
-Optionally also the feed-forward layers (`up_proj`, `down_proj`, `gate_proj`). More layers = more capacity, more memory.
-
-**Why attention projections first:** these are where contextual relationships are learned. They are the most task-sensitive parts of the model.
-
-**Common PEFT configuration:**
-```python
-target_modules=["q_proj", "k_proj", "v_proj", "o_proj"]
-```
-
----
-
-### 2.7 Memory Comparison — LoRA vs Full Fine-Tuning (1.5B model)
-
-Adapter parameter count at rank 16 targeting q/k/v/o across 28 layers (using 1536×1536 as a uniform approximation):
-```
-Per layer: 4 modules × (16×1536 + 1536×16) = 4 × 49,152 = 196,608 params
-28 layers: 196,608 × 28 ≈ 5.5M adapter params
-```
-
-Memory breakdown:
-```
-                    Full FT         LoRA (rank 16, q/k/v/o, 28 layers)
-                    ───────         ────────────────────────────────────
-Base weights:        3 GB            3 GB    (same — frozen, still loads)
-Gradients (FP16):    3 GB           ~11 MB   (5.5M × 2 bytes)
-Master copy (FP32):  6 GB           ~22 MB   (5.5M × 4 bytes)
-Adam momentum:       6 GB           ~22 MB   (5.5M × 4 bytes)
-Adam variance:       6 GB           ~22 MB   (5.5M × 4 bytes)
-─────────────────────────────────────────────────────────────────────
-Total:             ~24 GB          ~3.1 GB
-```
-
-The frozen base still occupies memory — but needs no gradients or optimizer state. Only the adapter parameters do. Total adapter overhead (gradients + optimizer states) is ~77 MB, not gigabytes.
-
----
-
-### 2.8 Saving, Loading, and Merging Adapters
-
-**Saving:**
-After training, the adapter (A and B matrices for each targeted layer) is saved. At rank 16 targeting q/k/v/o only on a 1.5B model, the adapter file is ~11 MB (5.5M params × 2 bytes FP16). Including FFN layers pushes it higher. The base model weights are not in this file.
-
-**Loading — keeping separate:**
-Load the base model, then load the adapter on top with `PeftModel.from_pretrained`. The adapter is applied at inference time. This allows one base model with many task adapters swapped on top.
-
-**Loading — merging:**
-Compute `W_new = W + (α/r) · B · A` and write it into W. Result is a standard model with no adapter overhead. Inference is identical speed to the base model. The adapter is now baked in and cannot be removed without reloading the base.
-
-**When to merge:** when you have one primary task and want inference to be as fast as possible. When you want to distribute the model without exposing the adapter structure.
-
-**When to keep separate:** when you have multiple task adapters, want to switch between them, or want to share just the adapter file rather than a full model copy.
-
----
-
-### 2.9 LoRA Trade-Offs Summary
-
-| Dimension | LoRA |
-|---|---|
-| Memory | Low — ~3.5 GB for 1.5B model at rank 16 |
-| Speed | Fast — gradient work is tiny (adapters only) |
-| Quality | Close to full fine-tuning on narrow tasks |
-| Complexity | Low — one rank and alpha to set |
-| Forgetting risk | Low — base weights never change |
-| Output size | Small adapter file (MB), not a full model copy |
-| Feasible on M1 16 GB | Yes — comfortable for 1.5B, possible for 3B |
-
----
-
-## Part 3 — QLoRA
-
-*Not yet formally documented. Topics studied conceptually are listed below. Full notes will be added after discussion and verification.*
-
-### Topics Studied (to be formally documented)
-
-- What quantization is — representing weights in fewer bits to save memory
-- FP32, FP16, BF16 — what each sacrifices in precision
-- 4-bit quantization and why it is challenging for weights
-- NF4 (NormalFloat4) — why it is information-theoretically optimal for normally-distributed model weights
-- Double quantization — quantizing the quantization constants themselves
-- The dequantize-compute-quantize cycle — why QLoRA can still compute accurate gradients
-- What is still in FP16 during QLoRA (the LoRA adapters and optimizer states)
-- LoRA vs QLoRA — when to use each
-
-### Placeholder Summary
-
-QLoRA extends LoRA by loading the base model in 4-bit (instead of 16-bit), reducing base model memory from 3 GB to ~0.75 GB for a 1.5B model. The adapters still train in 16-bit. This enables fine-tuning much larger models (7B, 13B) on the same hardware.
-
-The trade-off: 4-bit quantization introduces some precision loss in the base. For most tasks the quality difference from LoRA is small but measurable.
-
----
-
-## Part 4 — Practical Implementation
-
-*Not yet started. Notes will be added during Phase 4 implementation.*
-
----
-
-## Part 5 — Evaluation and Experimentation
-
-*Not yet started. Notes will be added during Phase 5.*
-
----
-
-## Part 6 — Production Integration
-
-*Not yet started. Notes will be added during Phase 6.*
-
----
-
-## Quick Reference
-
-### Key Concept Definitions
-
-| Concept | One-line definition |
-|---|---|
-| Token | Smallest unit of text the model processes; mapped to an integer ID |
-| Embedding | A dense vector representing a token; learned during training |
-| Self-attention | Mechanism that computes relevance between all token pairs using Q, K, V matrices |
-| Causal masking | Prevents tokens from attending to future positions; enforces left-to-right generation |
-| Feed-forward layer | Per-token transformation after attention; stores most of the model's factual knowledge |
-| Loss | A number measuring how wrong the model's prediction was; minimized during training |
-| Cross-entropy | The specific loss function used for next-token prediction |
-| Backpropagation | Algorithm that computes gradients by working backwards through the network |
-| Gradient | Per-weight number saying how much that weight contributed to the loss |
-| Learning rate | Controls how large each weight update step is |
-| Adam | Optimizer that adapts the learning rate per weight using momentum and variance |
-| Fine-tuning | Continuing training on a small task-specific dataset, starting from pretrained weights |
-| SFT | Supervised Fine-Tuning — training on (prompt, correct response) pairs |
-| PEFT | Parameter-Efficient Fine-Tuning — only training a small subset of parameters |
-| LoRA | Low-Rank Adaptation — trains small A and B matrices alongside frozen base weights |
-| Rank | LoRA bottleneck dimension; controls adapter expressiveness |
-| Alpha | LoRA scale factor; effective scale is α/r |
-| Adapter | The A and B matrices added by LoRA; can be saved separately from the base |
-| Quantization | Representing weights in fewer bits (e.g. 4-bit instead of 16-bit) to save memory |
-| QLoRA | LoRA on a 4-bit quantized base model |
-| NF4 | NormalFloat4 — 4-bit data type optimized for normally-distributed model weights |

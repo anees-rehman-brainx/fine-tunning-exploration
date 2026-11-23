@@ -20,11 +20,21 @@ This project follows an assignment that requires:
 
 | Document | Purpose |
 |---|---|
-| [README.md](README.md) | Project overview, context, navigation, and working rules |
+| [README.md](README.md) | This file — project overview, navigation, and working rules |
 | [ROADMAP.md](ROADMAP.md) | Complete curriculum, phases, milestones, and current status |
-| [LEARNING.md](LEARNING.md) | Consolidated learning notes — concepts, explanations, examples, revision material |
 | [PROGRESS.md](PROGRESS.md) | Topic tracker — what is understood, in progress, or needs revision |
-| [practical/](practical/) | Implementation notebooks, scripts, datasets, and experiments |
+| [docs/](docs/) | Learning notes, one file per phase |
+| [practical/](practical/) | Implementation code, notebooks, datasets, and experiments |
+
+### Learning Notes (docs/)
+
+| File | Contents |
+|---|---|
+| [docs/00-glossary.md](docs/00-glossary.md) | Quick-reference definitions for all key concepts across all phases |
+| [docs/01-fundamentals.md](docs/01-fundamentals.md) | LLM foundations: tokenization, embeddings, training, fine-tuning basics |
+| [docs/02-lora.md](docs/02-lora.md) | LoRA: low-rank decomposition, rank, alpha, adapters, memory savings |
+| [docs/03-qlora.md](docs/03-qlora.md) | QLoRA: quantization, NF4, 4-bit training (in progress) |
+| [docs/04-training-workflow.md](docs/04-training-workflow.md) | End-to-end practical training workflow and implementation checklist |
 
 ---
 
@@ -33,7 +43,7 @@ This project follows an assignment that requires:
 - Machine: MacBook with Apple M1, 16 GB unified memory
 - Usable for training: ~12–13 GB after macOS overhead
 - Full fine-tuning of a 1.5B model requires ~24 GB — not feasible on this machine
-- LoRA on 1.5B model: ~3.5 GB — feasible
+- LoRA on 1.5B model: ~3.1 GB — feasible
 - QLoRA extends feasibility to larger models by quantizing the base
 
 ---
