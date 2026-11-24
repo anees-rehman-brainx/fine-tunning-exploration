@@ -1,0 +1,12 @@
+Held-out test prompts — do not add to training data, do not change after baseline is captured.
+
+1. The website went offline 5 minutes ago. All 500 users are locked out.
+2. Client sent a formal email this morning saying they are reconsidering the entire contract.
+3. Invoice from 8 weeks ago is still unpaid. We have sent 3 reminders with no response.
+4. Senior developer just texted: she is resigning. Joining a startup next month.
+5. Client is asking for push notifications. It was not in the original scope.
+6. We just deployed and immediately got reports of the user profile page breaking.
+7. Someone sent me unusual logs — looks like external IPs are querying our DB.
+8. The dashboard is painfully slow for all users. Takes 12 seconds to load.
+9. Delivery was rejected — client says the mobile layout is unusable.
+10. Two developers had a serious argument. One filed a formal complaint with me.

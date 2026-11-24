@@ -6,3 +6,5 @@ __pycache__/
 .env
 *.env
 .code-review-graph/
+.code-reviews/
+practical/adapter_v1/checkpoint-*/

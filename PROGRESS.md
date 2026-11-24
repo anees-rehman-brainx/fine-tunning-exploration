@@ -8,13 +8,13 @@ A concept is UNDERSTOOD only after it has been demonstrated in conversation. An 
 
 ## Current Position
 
-**Active phase:** Moving to Phase 4 — Practical LoRA Implementation
+**Active phase:** Phase 4 complete — moving to Phase 5 (Evaluation and Experimentation)
 
-**Last completed:** Phase 2 (LoRA) — conceptual understanding confirmed.
+**Last completed:** Phase 4 — full end-to-end LoRA fine-tuning pipeline executed and verified on 2026-11-24.
 
-**Next activity:** Set up the Python environment, choose a small pretrained model, prepare a small dataset, and run the first end-to-end LoRA fine-tuning pipeline.
+**What was built:** Organizational Procedure Assistant — a fine-tuned Qwen2.5-0.5B-Instruct model that takes workplace situations and returns structured procedures. Trained on 167 examples, evaluated on 10 held-out prompts. Result: 5.0/6.0 average score, PASS. See `practical/results/RESULTS.md`.
 
-**Hardware note:** Mac M1, 16 GB unified memory. ~12–13 GB usable. LoRA on 1.5B model is feasible. For QLoRA on larger models, use Google Colab or a hosted GPU environment.
+**Hardware note:** Mac M1, 16 GB unified memory. ~12–13 GB usable. LoRA on 0.5B model: ~3 GB active. For QLoRA on larger models, use Google Colab or a hosted GPU environment.
 
 ---
 
@@ -89,21 +89,22 @@ A concept is UNDERSTOOD only after it has been demonstrated in conversation. An 
 
 | Topic / Task | Status |
 |---|---|
-| Python environment setup | NOT STARTED |
-| PyTorch basics — tensors, devices | NOT STARTED |
-| Hugging Face Transformers — model loading | NOT STARTED |
-| Hugging Face PEFT — LoraConfig | NOT STARTED |
-| Hugging Face TRL — SFTTrainer | NOT STARTED |
-| Hugging Face Datasets | NOT STARTED |
-| Model selection (small pretrained model) | NOT STARTED |
-| Dataset preparation (format as chat JSONL) | NOT STARTED |
-| Train/validation split | NOT STARTED |
-| LoRA configuration and setup | NOT STARTED |
-| Inspect trainable parameters | NOT STARTED |
-| Run training, monitor loss | NOT STARTED |
-| Save adapter | NOT STARTED |
-| Load adapter and verify | NOT STARTED |
-| Run inference — base vs fine-tuned comparison | NOT STARTED |
+| Python environment setup | PRACTICALLY COMPLETED |
+| PyTorch basics — tensors, devices | PRACTICALLY COMPLETED |
+| Hugging Face Transformers — model loading | PRACTICALLY COMPLETED |
+| Hugging Face PEFT — LoraConfig | PRACTICALLY COMPLETED |
+| Hugging Face TRL — SFTTrainer (SFTConfig) | PRACTICALLY COMPLETED |
+| Hugging Face Datasets | PRACTICALLY COMPLETED |
+| Model selection — Qwen2.5-0.5B-Instruct | PRACTICALLY COMPLETED |
+| Dataset preparation (12 issue types, chat JSONL) | PRACTICALLY COMPLETED |
+| Train/validation split (167 train / 30 val) | PRACTICALLY COMPLETED |
+| LoRA configuration — r=16, alpha=32, q_proj+v_proj | PRACTICALLY COMPLETED |
+| Inspect trainable parameters (1.08M / 495M = 0.22%) | PRACTICALLY COMPLETED |
+| Run training, monitor loss (3.3 → 2.2 over 3 epochs) | PRACTICALLY COMPLETED |
+| Save adapter (adapter_v1/, ~16 MB) | PRACTICALLY COMPLETED |
+| Load adapter and verify | PRACTICALLY COMPLETED |
+| Run inference — base vs fine-tuned comparison | PRACTICALLY COMPLETED |
+| API version debugging (TRL 1.x + transformers 5.x) | PRACTICALLY COMPLETED |
 | Extend to QLoRA | NOT STARTED |
 
 ---
@@ -155,7 +156,17 @@ None flagged yet. If a comprehension check reveals a gap, it will be listed here
 
 ## Practical Exercises Completed
 
-None yet. Phase 4 is the first hands-on implementation.
+### Phase 4 — Organizational Procedure Assistant (2026-11-24)
+
+**Task:** Fine-tune Qwen2.5-0.5B-Instruct to respond to workplace situations with structured procedures.
+
+**Approach:** LoRA (rank=16, alpha=32) on q_proj and v_proj. 167 training examples across 12 issue types. SFTTrainer via TRL. Training on Apple M1 MPS.
+
+**Result:** Average evaluation score 5.0/6.0 on 10 held-out prompts. PASS. Structured output with ISSUE TYPE, SEVERITY, numbered steps, escalation triggers, and documentation requirements generated consistently.
+
+**Key lessons from debugging:** TRL 1.x and transformers 5.x introduced breaking API changes — SFTConfig replaces TrainingArguments, `processing_class` replaces `tokenizer=`, `dtype` replaces `torch_dtype`, and `apply_chat_template` now returns a BatchEncoding dict. All fixed and documented in the scripts.
+
+**Artifacts:** `practical/adapter_v1/`, `practical/results/RESULTS.md`
 
 ---
 

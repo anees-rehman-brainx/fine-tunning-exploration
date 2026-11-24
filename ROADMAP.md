@@ -9,14 +9,14 @@ This is the full curriculum organized into phases. Each phase has clear topics, 
 | Phase | Topic | Status |
 |---|---|---|
 | Phase 1 | Fine-Tuning Fundamentals | UNDERSTOOD |
-| Phase 2 | LoRA | UNDERSTOOD (conceptual) |
+| Phase 2 | LoRA | UNDERSTOOD |
 | Phase 3 | QLoRA | IN PROGRESS |
-| Phase 4 | Practical Implementation | NOT STARTED |
+| Phase 4 | Practical Implementation | PRACTICALLY COMPLETED |
 | Phase 5 | Evaluation and Experimentation | NOT STARTED |
 | Phase 6 | Production Integration | NOT STARTED |
 | Phase 7 | Capstone Project | NOT STARTED |
 
-**Current position:** Phase 2 conceptually complete. QLoRA concepts studied but not yet formally documented. Next activity is **Phase 4: Practical LoRA Implementation** (small model, small dataset, end-to-end pipeline).
+**Current position:** Phase 4 complete (2026-11-24). Full end-to-end LoRA pipeline built and executed. Qwen2.5-0.5B-Instruct fine-tuned on Organizational Procedure Assistant task, evaluated at 5.0/6.0, PASS. See `practical/results/RESULTS.md`. Next: Phase 5 (Evaluation and Experimentation) — controlled hyperparameter experiments, rank comparison, failure analysis.
 
 ---
 
@@ -138,15 +138,15 @@ Assess hardware before choosing the environment. Mac M1 with 16 GB can run LoRA 
 
 ### Checkpoint — be able to:
 
-- [ ] Set up the environment and explain what each library does
-- [ ] Prepare a dataset in the format the trainer expects
-- [ ] Configure LoRA and explain why each setting was chosen
-- [ ] Read the trainable parameter count output and verify it matches expectations
-- [ ] Monitor training loss and explain what it means
-- [ ] Save and reload an adapter and confirm outputs are identical
-- [ ] Run a side-by-side inference comparison and interpret the difference
+- [x] Set up the environment and explain what each library does
+- [x] Prepare a dataset in the format the trainer expects
+- [x] Configure LoRA and explain why each setting was chosen
+- [x] Read the trainable parameter count output and verify it matches expectations
+- [x] Monitor training loss and explain what it means
+- [x] Save and reload an adapter and confirm outputs are identical
+- [x] Run a side-by-side inference comparison and interpret the difference
 
-**Output:** Working scripts in `practical/`, notes in LEARNING.md, Part 4.
+**Output:** Working scripts in `practical/`, results in `practical/results/RESULTS.md`, workflow reference in `docs/04-training-workflow.md`.
 
 ---
 
